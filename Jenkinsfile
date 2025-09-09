@@ -1,9 +1,16 @@
 pipeline {
     agent any
     stages {
-        stage('Hello') {
+        stage('Build') {
             steps {
-                echo 'Hello World'
+                echo 'Installation des dépendances'
+                sh 'npm install'
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Exécution des tests unitaires'
+                sh 'npm test'
             }
         }
     }
