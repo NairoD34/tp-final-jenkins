@@ -1,0 +1,67 @@
+Contexte
+Tu fais partie d’une équipe DevOps dans une entreprise fictive : BookMyMovie, qui développe une
+application web de réservation de films.
+L’équipe a besoin d’une chaîne CI/CD fiable pour livrer rapidement, garantir la qualité du code,
+sécuriser les dépendances, et déployer automatiquement sur des environnements staging et
+production.
+Objectifs pédagogiques
+Mettre en place un pipeline complet et automatisé avec Jenkins.
+Appliquer les notions vues dans tes TP précédents :
+- Job simple + pipeline déclaratif (TP4).
+- Stages parallèles et paramètres (TP5).
+- Analyse SonarQube et contrôle qualité (TP6).
+Découvrir des extensions avancées : artefacts, approbation manuelle, déploiement
+Docker/Kubernetes, librairie partagée.
+Simuler un workflow réaliste de CI/CD.
+Attentes
+À la fin du projet, tu dois avoir un pipeline Jenkins qui :
+- Se déclenche automatiquement à chaque push/PR GitHub.
+- Compile, teste et génère un rapport JUnit.
+- Lance une analyse SonarQube et bloque si le quality gate échoue.
+- Scanne les dépendances et images Docker.
+- Produit et archive les artefacts (JAR/front build) + image Docker.
+- Déploie automatiquement sur un environnement staging.
+- Propose une approbation manuelle avant le déploiement en production.
+- Met en place une librairie Jenkins partagée pour factoriser les notifications et la gestion des
+versions.
+Éléments à mettre en place
+a) Jenkins & intégrations
+- Jenkins configuré avec plugins : Pipeline, GitHub Branch Source, SonarQube Scanner, Docker
+Pipeline, Warnings NG.
+- Agents Jenkins : un agent principal, un agent “build-heavy” (Docker ou VM).
+b) Repos GitHub
+- bookmymovie-api (Java/Node).
+- bookmymovie-front (React).
+- jenkins-shared-lib (librairie pipeline).
+c) Outils externes
+- SonarQube pour analyse qualité.
+- Trivy ou Grype pour scan Docker.
+- Docker Registry privé (Harbor ou DockerHub).
+- Environnements cibles : staging → déploiement auto (Docker Compose ou K8s namespace
+staging). prod → déploiement après validation manuelle.
+Déroulé du pipeline
+1. Checkout du code
+- Multibranch pipeline, déclenché par webhook GitHub.
+2. Build & tests unitaires
+- Compilation backend + frontend.
+- Exécution tests unitaires (JUnit ou Jest).
+- Publication rapport avec junit.
+3. Analyse qualité
+- Scanner SonarQube.
+- Attendre le Quality Gate (waitForQualityGate).
+- Échec si non respecté.
+4. Sécurité
+- Stage SCA (dependency-check / npm audit).
+- Scan image Docker avec Trivy.
+- Faille critique = build échoué.
+5. Packaging & Artefacts
+- Archiver artefacts (jar, build front).
+- Construire et pousser l’image Docker (docker.withRegistry).
+6. Déploiement staging
+- Automatique après build validé.
+- Déploiement Docker Compose ou kubectl apply -n staging.
+7. Approbation manuelle
+- Étape input pour validation manuelle.
+8. Déploiement production
+- Déploiement sur namespace/prod.
+- Notification Slack/Email (via librairie partagée).
